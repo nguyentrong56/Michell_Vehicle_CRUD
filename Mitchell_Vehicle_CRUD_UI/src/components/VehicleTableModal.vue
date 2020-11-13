@@ -107,8 +107,11 @@ export default {
       this.$v.$touch();
       if(!this.$v.$invalid)
       {
-          this.$store.dispatch("updateVehicle", this.vehicle)
-          .then(this.$emit("close"));
+        this.$Progress.start()
+        this.$store.dispatch("updateVehicle", this.vehicle)
+        .then(
+          this.$Progress.finish(),
+          this.$emit("close"));
       }
       
     },
