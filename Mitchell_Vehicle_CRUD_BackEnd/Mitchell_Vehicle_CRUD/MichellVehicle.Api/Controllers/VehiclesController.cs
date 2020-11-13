@@ -23,6 +23,12 @@ namespace Mitchell_Vehicle_CRUD.MichellVehicle.Api.Controllers
     {
 
         
+        /// <summary>
+        /// Support GET method to return all vehicles if no param is given
+        /// if params are given, will return list of vehicles match params
+        /// </summary>
+        /// <param name="filter"> params class object contains 'Make, ' Model', 'Year' </param>
+        /// <returns> List of Vehicle </returns>
         [Route("api/vehicles/")]
         [HttpGet]
         [ResponseType(typeof(List<Vehicle>))]
@@ -34,15 +40,17 @@ namespace Mitchell_Vehicle_CRUD.MichellVehicle.Api.Controllers
                 try
                 {
                     var vehicleList = new List<Vehicle>();
+                    // Return all vehicles for null filter
                     if(filter ==  null)
                     {
                         vehicleList = vehicleService.GetAllVehicles().ToList();
 
                     }
-
+                    // Or return vehicles that match params 
                     else
                     {
-                        vehicleList = vehicleService.GetVehiclesFiltered(filter.Year, filter.Make, filter.Model).ToList();
+                        // Will do waterfall matching from Make --> Model --> Year ---> result
+                        vehicleList = vehicleService.GetVehiclesWithParams(filter.Make, filter.Model, filter.Year).ToList();
 
                     }
                     return Content(HttpStatusCode.OK, vehicleList);
@@ -53,10 +61,12 @@ namespace Mitchell_Vehicle_CRUD.MichellVehicle.Api.Controllers
                 }
             }
         }
-
-
-
        
+        /// <summary>
+        /// Support GET to return vehicle by Id
+        /// </summary>
+        /// <param name="id"> vehicle Id </param>
+        /// <returns> vehicle object</returns>
         [Route("api/vehicles/{id}")]
         [HttpGet]
         [ResponseType(typeof(Vehicle))]
@@ -68,18 +78,31 @@ namespace Mitchell_Vehicle_CRUD.MichellVehicle.Api.Controllers
                 try
                 {
                     var vehicle = vehicleService.GetVehicle(id);
-                    return Content(HttpStatusCode.OK, vehicle);
+                    if (vehicle != null)
+                    {
+                        return Content(HttpStatusCode.OK, vehicle);
+                    }
+
+                    else
+                    {
+                        return Content(HttpStatusCode.NotFound, "Vehicle could not be found");
+                    }
+
+                   
                 }
                 catch (Exception )
                 {
-                    return Content(HttpStatusCode.NotFound, "Vehicle could not be found");
+                    return Content(HttpStatusCode.InternalServerError, "Oops! Something when wrong on our end");
                 }
             }
-          
-           
+               
         }
-
-        
+     
+        /// <summary>
+        /// Support PUT to update existing vehicle
+        /// </summary>
+        /// <param name="vehicle"> vehicle object with new information </param>
+        /// <returns> updated vehicle object</returns>
         [Route("api/vehicles/")]
         [HttpPut]
         [ResponseType(typeof(Vehicle))]
@@ -104,6 +127,11 @@ namespace Mitchell_Vehicle_CRUD.MichellVehicle.Api.Controllers
         }
 
         
+        /// <summary>
+        /// Support POST to create new vehicle
+        /// </summary>
+        /// <param name="vehicle"> new vehicle object</param>
+        /// <returns> created vehicle object </returns>
         [Route("api/vehicles/")]
         [HttpPost]
         [ResponseType(typeof(Vehicle))]
@@ -145,6 +173,11 @@ namespace Mitchell_Vehicle_CRUD.MichellVehicle.Api.Controllers
         }
 
         
+        /// <summary>
+        /// Support DELETE method to delete vehicle using Id
+        /// </summary>
+        /// <param name="id"> vehicle Id </param>
+        /// <returns> deleted vehicle object </returns>
         [Route("api/vehicles/{id}")]
         [HttpDelete]
         [ResponseType(typeof(Vehicle))]
@@ -173,13 +206,7 @@ namespace Mitchell_Vehicle_CRUD.MichellVehicle.Api.Controllers
                 }
             }
         }
-
-        
-
-
-                
-
-            
+       
         }
     
 }

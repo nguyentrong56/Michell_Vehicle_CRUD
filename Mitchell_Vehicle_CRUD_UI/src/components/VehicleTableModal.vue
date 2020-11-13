@@ -1,138 +1,122 @@
 <template>
-    <div class="modal-backdrop">
-        <v-flex xs10 md10 lg4 offset-xs1 offset-sm3 offset-md1 offset-lg4>
-            <v-card>
-                <v-card-title primary-title>
-                    <span>
-                        <h2> Vehicle Information</h2>
-                    </span>
-                </v-card-title>
-                <v-card-text>
-                     <form>
+  <div class="modal-backdrop">
+    <v-flex xs10 md10 lg4 offset-xs1 offset-sm3 offset-md1 offset-lg4>
+      <v-card>
+        <v-card-title primary-title>
+          <span>
+            <h2>Vehicle Information</h2>
+          </span>
+        </v-card-title>
+        <v-card-text>
+          <form>
             <v-text-field
-            v-model="vehicle.Make"
-            :error-messages="makeErrors"
-            label="Make"
-            required
-            @input="$v.vehicle.Make.$touch()"
-            @blur="$v.vehicle.Make.$touch()"
-          
-            ></v-text-field> 
-
-            <v-text-field
-            v-model="vehicle.Model"
-            :error-messages="modelErrors"
-            label="Model"
-            required
-            @input="$v.vehicle.Model.$touch()"
-            @blur="$v.vehicle.Model.$touch()"
+              v-model="vehicle.Make"
+              :error-messages="makeErrors"
+              label="Make"
+              required
+              @input="$v.vehicle.Make.$touch()"
+              @blur="$v.vehicle.Make.$touch()"
             ></v-text-field>
 
             <v-text-field
-            v-model="vehicle.Year"
-            :error-messages="yearErrors"
-            label="Year"
-            required
-            @input="$v.vehicle.Year.$touch()"
-            @blur="$v.vehicle.Year.$touch()"
+              v-model="vehicle.Model"
+              :error-messages="modelErrors"
+              label="Model"
+              required
+              @input="$v.vehicle.Model.$touch()"
+              @blur="$v.vehicle.Model.$touch()"
             ></v-text-field>
 
-            <v-btn
-            color ="info"
-            v-on:click="editVehicleInfo"
-            @click="close"
-             >
-             Save
+            <v-text-field
+              v-model="vehicle.Year"
+              :error-messages="yearErrors"
+              label="Year"
+              required
+              @input="$v.vehicle.Year.$touch()"
+              @blur="$v.vehicle.Year.$touch()"
+            ></v-text-field>
+
+            <v-btn color="info"  @click="editVehicleInfo">
+              Save
             </v-btn>
-            <v-btn @click="close">
-            Cancel
-             </v-btn>
-                     </form>
-                </v-card-text>
-            </v-card>
-              
-            
-        
+            <v-btn @click="close"> Cancel </v-btn>
+          </form>
+        </v-card-text>
+      </v-card>
     </v-flex>
-    </div>
-    
-    
+  </div>
 </template>
 
 <script>
-import axios from 'axios'
-import {validationMixin} from 'vuelidate'
-import {required,between}  from "vuelidate/lib/validators"
+import { validationMixin } from "vuelidate";
+import { required, between } from "vuelidate/lib/validators";
 export default {
-    name:"CreateVehicle",
-    props:{
-        passedVehicle: Object
+  name: "CreateVehicle",
+  props: {
+    passedVehicle: Object,
+  },
+  mixins: [validationMixin],
+
+  //Define validation for empty and in range value 
+  validations: {
+    vehicle: {
+      Make: { required },
+      Model: { required },
+      Year: { required, between: between(1950, 2050) },
     },
-    mixins:[validationMixin],
-    validations: {
-        vehicle:{
-            Make: {required},
-            Model:{required},
-            Year:{required, between:between(1950,2050)},
+  },
 
-        }
-    },
+  data: function () {
+    return {
+      vehicle: {
+        Id: this.passedVehicle.Id,
+        Make: this.passedVehicle.Make,
+        Model: this.passedVehicle.Model,
+        Year: this.passedVehicle.Year,
+      },
+    };
+  },
 
-    data:function(){
-        return{
-            vehicle:{
-                Id: this.passedVehicle.Id,
-                Make: this.passedVehicle.Make,
-                Model: this.passedVehicle.Model,
-                Year: this.passedVehicle.Year            }
-        };
-    },
-
-    computed: {
-        makeErrors(){
-            const errors = []
-            if(!this.$v.vehicle.Make.$dirty) return errors
-            !this.$v.vehicle.Make.required && errors.push('Make is required.')
-            return errors
-        },
-
-        modelErrors(){
-            const errors = []
-            if(!this.$v.vehicle.Model.$dirty) return errors
-            !this.$v.vehicle.Model.required && errors.push('Model is required.')
-            return errors
-        },
-
-        yearErrors(){
-            const errors = []
-            if(!this.$v.vehicle.Year.$dirty) return errors
-            !this.$v.vehicle.Year.required && errors.push('Year is required')
-            !this.$v.vehicle.Year.between && errors.push("Year has to be between 1950 and 2050")
-            return errors
-        },
-
+  computed: {
+    makeErrors() {
+      const errors = [];
+      if (!this.$v.vehicle.Make.$dirty) return errors;
+      !this.$v.vehicle.Make.required && errors.push("Make is required.");
+      return errors;
     },
 
-    methods:{
-        async editVehicleInfo(){
-            const url = `https://localhost:44396/api/vehicles`
-        
-            await axios
-            .put(url, this.vehicle )
-            .then(response => alert(response.data))
-            .catch(err =>alert(err.response.data) )
-        },
-        close(){
-            this.$emit("close");
-        }
-       
+    modelErrors() {
+      const errors = [];
+      if (!this.$v.vehicle.Model.$dirty) return errors;
+      !this.$v.vehicle.Model.required && errors.push("Model is required.");
+      return errors;
+    },
 
-        
-    }
+    yearErrors() {
+      const errors = [];
+      if (!this.$v.vehicle.Year.$dirty) return errors;
+      !this.$v.vehicle.Year.required && errors.push("Year is required");
+      !this.$v.vehicle.Year.between &&
+        errors.push("Year has to be between 1950 and 2050");
+      return errors;
+    },
+  },
 
-
-
-}
+  methods: {
+    async editVehicleInfo() {
+      this.$v.$touch();
+      if(!this.$v.$invalid)
+      {
+          this.$store.dispatch("updateVehicle", this.vehicle)
+          .then(this.$emit("close"));
+      }
+      
+    },
+    close() {
+      this.$emit("close");
+    },
+  },
+};
 </script>
 
 <style scoped>

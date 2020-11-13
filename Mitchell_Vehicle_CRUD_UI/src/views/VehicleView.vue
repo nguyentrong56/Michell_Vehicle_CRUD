@@ -1,132 +1,160 @@
 <template>
-    <div id="view-vehicles">
-        <v-card-title>
-        Vehicles 
-        <v-spacer></v-spacer>
-        <v-flex>
-            <v-btn color="warning" @click="getVehicle">
-         Get All Vehicles
-        </v-btn>
-        </v-flex>
+  <div id="view-vehicles">
+    <v-card-title>
+      Vehicles
+      <v-spacer></v-spacer>
+      <v-flex>
+        <v-btn color="warning" @click="getVehicle"> Get All Vehicles </v-btn>
+      </v-flex>
 
-        <v-flex>
-            <v-btn color ="normal" >New vehicle</v-btn>
-        </v-flex>
-        
-        <v-flex>
-            <v-btn color="success" @click="getVehicle">
-         Search
-        </v-btn>
-        </v-flex>
-        
-
-        
-      </v-card-title>
-      <v-data-table
-        :headers="headers"
-        :items="vehicles"
-        :search="search"
-        class="elevation-1"
+      <v-flex>
+        <v-btn color="normal" @click="showCreateVehicleModal"
+          >Create New vehicle</v-btn
         >
-        <template v-slot:item.Controls="props">
-           
-            
-           
-                <v-btn @click="showModal(props.item)" alt="Edit">
-                    <v-icon dark>mdi-pen</v-icon>
-                        
-                        </v-btn>
-                        <v-btn @click="deleteVehicle(props.item)">
-                    <v-icon dark>mdi-heart</v-icon>
-                        
-                        </v-btn>
-        </template>
-        </v-data-table>
+      </v-flex>
 
-        <VehicleTableModal v-if="isModalVisible" v-bind:passedVehicle="modalVehicle" @close="closeModal"/>
-    </div>
+      <v-flex>
+        <v-btn color="success" @click="showSearchVehicleModal"> Search </v-btn>
+      </v-flex>
+    </v-card-title>
+       
+
+    <v-data-table
+      :headers="headers"
+      :items="vehicles"
+      class="elevation-1"
+    >
+      <template v-slot:item.Controls="props">
+        <v-btn @click="showVehicleInfoModal(props.item)" alt="Edit">
+          <v-icon dark>mdi-pen</v-icon>
+        </v-btn>
+        <v-btn @click="deleteVehicle(props.item)">
+          <v-icon dark>mdi-delete</v-icon>
+        </v-btn>
+      </template>
+    </v-data-table>
+
+    <VehicleTableModal
+      v-if="isModalVehicleInfoVisible"
+      v-bind:passedVehicle="selectedVehicle"
+      @close="closeModal"
+    />
+    <CreateVehicleModal
+      v-if="isModalCreateVehicleVisible"
+      @close="closeModal"
+    />
+    <SearchVehicleModal
+      v-if="isModalSearchVehicleVisible"
+      @close="closeModal"
+    />
+    
+  </div>
 </template>
 
 <script>
-import axios from "axios"
-import VehicleTableModal from "@/components/VehicleTableModal.vue"
+import VehicleTableModal from "@/components/VehicleTableModal.vue";
+import CreateVehicleModal from "@/components/CreateVehicleModal.vue";
+import SearchVehicleModal from "@/components/SearchModal.vue";
+
+
+import { mapState } from "vuex";
 //import { apiURL } from '@/const.js'
 export default {
-    name: "VehicleManager",
-    components:{
-        VehicleTableModal
+  name: "VehicleManager",
+  components: {
+    VehicleTableModal,
+    CreateVehicleModal,
+    SearchVehicleModal,
+    
+  },
+
+  data: function () {
+    return {
+      // to store selected vehicle which later passed into VehicleTableModal
+      selectedVehicle: "",
+      //for loading bard
+      loading: false,
+
+       // bool values used to switch modals on/off
+      isModalVehicleInfoVisible: false,
+      isModalCreateVehicleVisible: false,
+      isModalSearchVehicleVisible: false,
+
+
+      headers: [
+        {
+          text: "Vehicle Id",
+          align: "start",
+          value: "Id",
+        },
+        {
+          text: "Make",
+          value: "Make",
+        },
+        {
+          text: "Model",
+          value: "Model",
+        },
+        {
+          text: "Year",
+          value: "Year",
+        },
+
+        {
+          text: "",
+          value: "Controls",
+        },
+      ],
+    };
+  },
+
+  computed: mapState(["vehicles"]),
+
+  methods: {
+    //Method to send getVehicle action to Vuex store
+    async getVehicle() {
+      this.$Progress.start();
+      await this.$store.dispatch("getVehicles")
+      .catch((error) => {
+          alert(error)
+      })
+       this.$Progress.finish()
     },
-    data: function(){
-        return{
-            search: '',
-            params:{
-                make:'',
-                model:'',
-                year:'',
-            },          
-            vehicles:[],
-            modalVehicle:null,
-            isModalVisible:false,
-            headers:[
-                {
-                    text: 'Vehicle Id',
-                    align: 'start',
-                    value: 'Id'
-                },
-                {
-                    text: 'Make',
-                    value: 'Make'
-                },
-                {
-                    text: 'Model',
-                    value: 'Model'
-                },
-                {
-                    text: 'Year',
-                    value: 'Year'
-                },
 
-                {
-                    text: '',
-                    value: 'Controls'
-                },
-
-            ]
-            
-        };
+    //Method to send deleteVehicle action to Vuex store    
+    async deleteVehicle(vehicle) {
+      this.$Progress.start()
+      await this.$store.dispatch("deleteVehicle", vehicle)
+      .then( this.$Progress.finish())
+      .catch((error) => {
+          alert(error)
+      })
+     
     },
-    methods: {
-        async getVehicle(){
-            const url = `https://localhost:44396/api/vehicles`
-            await axios
-            .get(url,this.params)
-            .then(response => (this.vehicles = response.data));
-        },
 
-        async deleteVehicle(vehicle){
-            const url = `https://localhost:44396/api/vehicles/`
-            await axios
-            .delete(url + vehicle.Id)
-            .then(
-                response => { if (response.status ==200){
-                const deletedIndex = this.vehicles.findIndex(v =>v.Id == vehicle.Id)
-                this.vehicles.splice(deletedIndex,1)
-                }
-                });
-            console.log("modal clicked" + vehicle);
-           
-        },
+    //Method to switch on VehicleInfoModal
+    showVehicleInfoModal(vehicle) {
+      this.selectedVehicle = vehicle;
+      this.isModalVehicleInfoVisible = true;
+    },
 
-        showModal(vehicle){
-            this.modalVehicle = vehicle;
-            this.isModalVisible = true; 
-            
-        },
-        closeModal(){
-           
-            this.isModalVisible =false;
-        },
+    //Method to switch on eate
+    showCreateVehicleModal() {
+      this.isModalCreateVehicleVisible = true;
+    },
 
-    }
+    //Method to switch on CreateVehicle modal 
+    showSearchVehicleModal() {
+      this.isModalSearchVehicleVisible = true;
+    },
+    
+
+    //To close modals
+    closeModal() {
+      this.isModalSearchVehicleVisible = false;
+      this.isModalCreateVehicleVisible = false,
+      this.isModalVehicleInfoVisible = false ;
+    },
+  },
 };
 </script>

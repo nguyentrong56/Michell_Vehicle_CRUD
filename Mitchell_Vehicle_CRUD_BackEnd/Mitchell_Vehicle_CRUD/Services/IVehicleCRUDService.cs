@@ -12,7 +12,7 @@ namespace Mitchell_Vehicle_CRUD.Services
         Vehicle CreateVehicle(Vehicle vehicle);
         Vehicle GetVehicle(int vehicleId);
 
-        IEnumerable<Vehicle> GetVehiclesFiltered(int year, string make, string model);
+        IEnumerable<Vehicle> GetVehiclesWithParams(string make, string model, int year);
         Vehicle DeleteVehicle(int vehicleId);
         Vehicle UpdateVehicle(Vehicle vehicle);
         bool ExistingVehicle(Vehicle vehicle);

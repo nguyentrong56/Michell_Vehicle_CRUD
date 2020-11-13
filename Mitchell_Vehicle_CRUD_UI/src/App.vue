@@ -1,55 +1,53 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img
-          alt="Vuetify Logo"
+          alt="Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          src="./assets/logo.png"
           transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
+          width="80"
         />
       </div>
+     <v-btn
+        class="ma-2"
+        rounded
+        color="indigo"
+        @click="showHowToUse"
+      >
+        How to use
+      </v-btn>
 
       <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <h1> Vehicle Manager </h1>
     </v-app-bar>
-
     <v-main>
+      
+      <HowToUse v-if ="IsHowToUseVisible" @close="closeModal"/>
+      <vue-progress-bar> </vue-progress-bar>
       <router-view> </router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-
+import HowToUse from '@/components/HowToUse.vue'
 export default {
-  name: 'app',
+  name: "app",
+  components:{HowToUse},
+  data: function() {return{
+    IsHowToUseVisible: false
+  }},
 
-  data: () => ({
-    //
-  }),
+  methods:{
+    showHowToUse(){
+      this.IsHowToUseVisible = true
+    },
+    closeModal(){
+      this.IsHowToUseVisible = false
+    }
+  }
 };
 </script>
