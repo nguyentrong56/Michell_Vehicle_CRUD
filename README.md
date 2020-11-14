@@ -1,4 +1,4 @@
-# Michell_Vehicle_CRUD
+# Mitchell_Vehicle_CRUD
 - This is an application containing CRUD operations : Creating, Removing, Updating and Delete Vehicle .
 - Decoupling design is applied. There are 5 layers in the design: UI, Data transport, Service, Data Access, Persistence .
 - Project contains two folders: Backend application and frontend application.
