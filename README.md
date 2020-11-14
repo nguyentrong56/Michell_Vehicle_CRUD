@@ -6,6 +6,8 @@
 ![alt text](highLevel.png)
 
 
+![alt text](ui.png)
+
 #BACKEND APPLICATION 
  - Implemented using C# and .NET Framework 4.7.2
  - Database is  Microsoft SQL implemented using Code-First approach. Database will be initialized automatically with some data when building the project. 
