@@ -6,7 +6,7 @@
 ![alt text](highLevel.png)
 
 
-![alt text](ui.png)
+
 
 #BACKEND APPLICATION 
  - Implemented using C# and .NET Framework 4.7.2
@@ -18,6 +18,8 @@
 - Unit testing for services was made using MSTest.
 
 #FRONT END APPLICATION
+![alt text](ui.png)
+
 - Single page application implemented using VueJS framework and Vuetify.
 - Modular design with components for features.
 - Axios for API requests.
